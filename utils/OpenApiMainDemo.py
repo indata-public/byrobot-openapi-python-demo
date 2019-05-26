@@ -8,6 +8,7 @@ import urllib
 import datetime
 import urllib.request
 import urllib.parse
+import json
 
 '''
  Demo说明：
@@ -17,8 +18,8 @@ import urllib.parse
 '''
 
 # ak 需要获取
-appKey = '****APPKey*****'
-appSecrete = '*****APPSECRET*****'
+appKey = '****APP_KEY*****'
+appSecrete = '*****APP_SECRET*******'
 
 # GMT时间获取
 GMT_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -44,5 +45,55 @@ def get_companys():
     return html_code
 
 
+def get_phones():
+    request_obj = urllib.request.Request(url=BASE_URL + "/openapi/v1/company/getPhones?companyId=3813")
+    request_obj.add_header("sign", quote)
+    request_obj.add_header("datetime", time_format_gmt)
+    request_obj.add_header("appkey", appKey)
+    response_obj = urllib.request.urlopen(request_obj)
+    html_code = response_obj.read().decode('utf-8')
+    return html_code
+
+
+def post_create_job():
+    textmod = {
+          "companyId" : 3813,
+          "taskName" : "测试任务",
+          "taskType" : 2,
+          "startDate" : "2017-10-19",
+          "workingStartTime" : "08:00",
+          "workingEndTime" : "22:00",
+          "breakStartTime":"12:00",
+          "breakEndTime":"14:00",
+          "userPhoneIds" : [20121],
+          "callType" : 1,
+          "concurrencyQuota" :1,
+          "robotDefId" : 1,
+          "sceneDefId" : 1,
+          "sceneRecordId" : 7,
+          "remark" : "创建任务",
+          "userLevelPush": "用户自定义推送参数"
+      }
+    textmod = json.dumps(textmod).encode(encoding='utf-8')
+    print(textmod)
+    header_dict = {"Content-Type": "application/json"}
+    req = urllib.request.Request(url=BASE_URL+'/openapi/v1/task/createTask', data=textmod, headers=header_dict)
+    req.add_header("sign", quote)
+    req.add_header("datetime", time_format_gmt)
+    req.add_header("appkey", appKey)
+    res = urllib.request.urlopen(req)
+    res = res.read()
+    print(res)
+    print(res.decode(encoding='utf-8'))
+
+
 companys = get_companys()
 print(companys)
+
+
+post_create_job()
+
+
+phones = get_phones()
+print(phones)
+
